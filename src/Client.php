@@ -53,6 +53,11 @@ class Client extends GuzzleClient
     );
 
     /**
+     * @var \Guzzle\Service\Command\CommandInterface|null
+     */
+    private $lastCommand;
+
+    /**
      * {@inheritdoc}
      */
     public static function factory($config = array())
@@ -1169,10 +1174,37 @@ class Client extends GuzzleClient
 
         $cmd->prepare();
 
+        // Set a reference to the last prepared command for easier troubleshooting
+        $this->lastCommand = $cmd;
+
         if ($returnRaw) {
             return $cmd->getResponse()->getBody(true);
         }
 
         return $cmd->getResult();
+    }
+
+    /**
+     * @return \Guzzle\Service\Command\CommandInterface|null
+     */
+    public function getLastCommand()
+    {
+        return $this->lastCommand;
+    }
+
+    /**
+     * @return \Guzzle\Http\Message\RequestInterface|null
+     */
+    public function getLastRequest()
+    {
+        return $this->lastCommand ? $this->lastCommand->getRequest() : null;
+    }
+
+    /**
+     * @return \Guzzle\Http\Message\Response|null
+     */
+    public function getLastResponse()
+    {
+        return $this->lastCommand ? $this->lastCommand->getResponse() : null;
     }
 }
