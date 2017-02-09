@@ -53,6 +53,11 @@ class Client extends GuzzleClient
     );
 
     /**
+     * @var \DateTime|null
+     */
+    private $lastRequestDate;
+
+    /**
      * @var \Guzzle\Service\Command\CommandInterface|null
      */
     private $lastCommand;
@@ -1161,6 +1166,7 @@ class Client extends GuzzleClient
      */
     private function getResult($command, $args, $fixArgs = false, $returnRaw = false)
     {
+        $this->lastRequestDate = new \DateTime();
         $cmd = $this->getCommand($command, $args);
 
         // Marketo expects parameter arrays in the format id=1&id=2, Guzzle formats them as id[0]=1&id[1]=2.
@@ -1198,6 +1204,14 @@ class Client extends GuzzleClient
     public function getLastRequest()
     {
         return $this->lastCommand ? $this->lastCommand->getRequest() : null;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getLastRequestDate()
+    {
+        return $this->lastRequestDate;
     }
 
     /**
