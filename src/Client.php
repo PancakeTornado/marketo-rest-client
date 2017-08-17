@@ -934,24 +934,29 @@ class Client extends GuzzleClient
 
                 $input['attributes'] = []; // Initialize
                 foreach ($activity['attributes'] as $attribute) {
+                    // Validate required key/value pairs
                     if (!is_array($attribute)) {
                         throw new \InvalidArgumentException('The "attributes" parameter must contain child array(s).');
                     }
                     // Required child parameters
-                    foreach (['name', 'value'] as $required) {
-                        if (!isset($attribute[$required])) {
-                            throw new \InvalidArgumentException("Required array key \"{$required}\" is missing in the \"attributes\" parameter.");
-                        }
+                    if (!isset($attribute['name']) && !isset($attribute['apiName'])) {
+                        throw new \InvalidArgumentException("At least one of the array keys 'name' or 'apiName' is required but missing in the 'attributes' parameter.");
                     }
-                    $inputAttribute = [
-                        'name' => (string) $attribute['name'],
-                        'value' => (string) $attribute['value'],
-                    ];
-                    // Optional child parameters
+                    if (!isset($attribute['value'])) {
+                        throw new \InvalidArgumentException("Required array key 'value'is missing in the 'attributes' parameter.");
+                    }
+
+                    // Prepare request value format
+                    $inputAttribute = [];
+                    if (isset($attribute['name'])) {
+                        $inputAttribute['name'] = (string) $attribute['name'];
+                    }
                     if (isset($attribute['apiName'])) {
                         $inputAttribute['apiName'] = (string) $attribute['apiName'];
                     }
+                    $inputAttribute['value'] = (string) $attribute['value'];
 
+                    // Done formatting request values
                     $input['attributes'][] = $inputAttribute;
                 }
             }
